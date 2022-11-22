@@ -81,7 +81,6 @@ class MalloyStateless {
     const translator = parse._translator;
 
     const result = translator.translate();
-    console.log(result.translated);
 
     return result?.tables || [];
   }
@@ -138,6 +137,10 @@ describe("Malloy Stateless library", () => {
         airports: expect.anything(),
         flights: expect.anything(),
       });
+      const preparedQuery = response.model.getPreparedQueryByIndex(0);
+      expect(preparedQuery).not.toBeNull();
+      expect(preparedQuery._query.structRef).toBe("flights");
+      expect(typeof preparedQuery.preparedResult.sql).toBe("string");
     });
   });
 });
