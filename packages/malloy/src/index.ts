@@ -83,7 +83,7 @@ export {
   InMemoryURLReader,
   FixedConnectionMap,
   MalloyError,
-  ModelMaterializer,
+  PreparedQuery,
   JoinRelationship,
   SourceRelationship,
   DateTimeframe,
@@ -97,7 +97,7 @@ export {
 } from "./malloy";
 export type {
   Explore,
-  PreparedQuery,
+  ModelMaterializer,
   PreparedResult,
   Field,
   AtomicField,

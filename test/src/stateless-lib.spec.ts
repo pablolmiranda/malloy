@@ -1,4 +1,4 @@
-import { Malloy, MalloyModel } from "@malloydata/malloy";
+import { Malloy, MalloyModel, PreparedQuery } from "@malloydata/malloy";
 import tableSchemas from "./db_schemas/duckdb";
 
 const modelText = `
@@ -85,6 +85,9 @@ class MalloyStateless {
     return result?.tables || [];
   }
 
+  /**
+   * Generate the Malloy model from a document ( model text definition ) and the database schemas
+   */
   static generateMalloyModel(document: string, schemas: any): ModelResponse {
     const parse = Malloy.parse({
       source: document,
@@ -100,16 +103,53 @@ class MalloyStateless {
 
     const model = new MalloyModel(translator.modelDef, queryList, sqlBlocks);
 
-    // console.log(JSON.stringify(model, null, 2));
-
     return {
       model,
     };
   }
 
-  // static generateBigQuerySQL(malloyModel, malloyQuery): SQLStatement {
+  /**
+   * Use the Malloy model to generate the SQL for a malloy query
+   */
+  static generateSQLQuery(model: MalloyModel, query: string): SQLStatement {
+    /**
+     * Compile the query to a parse object
+     */
+    const parse = Malloy.parse({
+      source: query,
+    });
 
-  // }
+    /**
+     * Now, use the existent model to inject the necessary definitions
+     * to generate the query.
+     */
+    const result = parse._translator.translate(model._modelDef);
+
+    /**
+     * Extract the list of queries
+     */
+    const queryList = result.translated?.queryList;
+
+    /**
+     * If the query can be parsed and it is using the model correctly
+     * it will exist as the first object inside the query list.
+     */
+    if (queryList && queryList[0]) {
+      const queryListItem = queryList[0];
+
+      /**
+       * Build a new PreparedQuery to extract the SQL from it
+       */
+      const preparedQuery = new PreparedQuery(queryListItem, model._modelDef);
+
+      /**
+       * Return the SQL for the query
+       */
+      return preparedQuery.preparedResult.sql;
+    }
+
+    throw new Error("It was not possible to generate the SQL query");
+  }
 }
 
 describe("Malloy Stateless library", () => {
@@ -137,10 +177,29 @@ describe("Malloy Stateless library", () => {
         airports: expect.anything(),
         flights: expect.anything(),
       });
+
       const preparedQuery = response.model.getPreparedQueryByIndex(0);
       expect(preparedQuery).not.toBeNull();
       expect(preparedQuery._query.structRef).toBe("flights");
       expect(typeof preparedQuery.preparedResult.sql).toBe("string");
+    });
+  });
+
+  describe("static generateSQLQuery", () => {
+    it("returns a SQL statement from a malloy model and query", () => {
+      const { model } = MalloyStateless.generateMalloyModel(
+        modelText,
+        tableSchemas
+      );
+
+      const query = `
+        query: flights -> {
+          aggregate: flight_count
+        }
+      `;
+
+      const sql = MalloyStateless.generateSQLQuery(model, query);
+      expect(sql).toMatchSnapshot();
     });
   });
 });
