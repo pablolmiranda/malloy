@@ -57,6 +57,7 @@ query: flights ->  {
 `;
 
 type SQLStatement = string;
+type MalloyModelTextDefinition = string;
 
 type ModelResponse = {
   model: MalloyModel;
@@ -74,14 +75,28 @@ class MalloyStateless {
   /**
    * Return the list of tables required by the model
    */
-  static getTableList(malloyDocument: string): string[] {
+  static getTableList(malloyDocument: MalloyModelTextDefinition): string[] {
+    /**
+     * Create the parse representation of the document ( malloy model text definition )
+     */
     const parse = Malloy.parse({
       source: malloyDocument,
     });
+
+    /**
+     * Extract the Malloy Translator
+     */
     const translator = parse._translator;
 
+    /**
+     * Process ( compile ) the model definition to generate the necessary abstraction,
+     * include the list of table schemas we need.
+     */
     const result = translator.translate();
 
+    /**
+     * Return the list of table the model needs schema information
+     */
     return result?.tables || [];
   }
 
@@ -89,20 +104,42 @@ class MalloyStateless {
    * Generate the Malloy model from a document ( model text definition ) and the database schemas
    */
   static generateMalloyModel(document: string, schemas: any): ModelResponse {
+    /**
+     * Create the parse representation of the document ( malloy model text definition )
+     */
     const parse = Malloy.parse({
       source: document,
     });
+
+    /**
+     * Process ( compile ) the model definition to generate the necessary abstraction,
+     * include the list of table schemas we need.
+     */
     const translator = parse._translator;
-    let result = translator.translate(translator.modelDef);
+
+    /**
+     * Update the translator with the schema definitions
+     */
     translator.update({
       tables: schemas,
     });
-    result = translator.translate(translator.modelDef);
+
+    /**
+     * Force a re-evaluation, now with the schemas and extract the necessary
+     * parts to build the model
+     */
+    const result = translator.translate(translator.modelDef);
     const queryList = result.translated?.queryList || [];
     const sqlBlocks = result.translated?.sqlBlocks || [];
 
+    /**
+     * Build the Malloy model
+     */
     const model = new MalloyModel(translator.modelDef, queryList, sqlBlocks);
 
+    /**
+     * REturn the model as part of the response object
+     */
     return {
       model,
     };
@@ -148,6 +185,11 @@ class MalloyStateless {
       return preparedQuery.preparedResult.sql;
     }
 
+    /**
+     * Throw an exception because we couldn't generate the SQL.
+     * We need a better error information here, so the user can try to
+     * recover. Maybe it is a query definition that need to change.
+     */
     throw new Error("It was not possible to generate the SQL query");
   }
 }
