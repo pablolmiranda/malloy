@@ -1,0 +1,1 @@
+export { MalloyStateless } from "./lib";
