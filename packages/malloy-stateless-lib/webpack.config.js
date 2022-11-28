@@ -4,6 +4,8 @@ const process = require("process");
 const noop = require("lodash/noop");
 const BundleAnalyzerPlugin =
   require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
+const webpack = require('webpack');
+
 const bundleAnalyzer =
   process.env["NODE_ENV"] === "development" ? new BundleAnalyzerPlugin() : noop;
 
@@ -13,6 +15,7 @@ module.exports = {
   output: {
     filename: "lib.js",
     path: path.resolve(__dirname, "dist", "bundle"),
+    library: "Malloy",
   },
   module: {
     rules: [
@@ -29,5 +32,13 @@ module.exports = {
   optimization: {
     usedExports: true,
   },
-  plugins: [bundleAnalyzer],
+  plugins: [
+    bundleAnalyzer,
+    // new webpack.ProvidePlugin({
+    //   // process: "process/browser",
+    // }),
+    new webpack.DefinePlugin({
+      'process.env': JSON.stringify(process.env)
+    })
+  ],
 };
