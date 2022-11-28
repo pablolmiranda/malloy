@@ -5,8 +5,9 @@
     { "path": "packages/malloy-db-bigquery" },
     { "path": "packages/malloy-db-duckdb" },
     { "path": "packages/malloy-db-postgres" },
+    { "path": "packages/malloy-stateless-lib" },
     { "path": "test" },
-    { "path": "packages/malloy-render" }
+    { "path": "packages/malloy-render" },
   ],
   "files": [],
   "include": [],
