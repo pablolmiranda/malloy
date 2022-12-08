@@ -1,13 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
 const process = require("process");
-const noop = require("lodash/noop");
-const BundleAnalyzerPlugin =
-  require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
-const webpack = require('webpack');
-
-const bundleAnalyzer =
-  process.env["NODE_ENV"] === "development" ? new BundleAnalyzerPlugin() : noop;
+const webpack = require("webpack");
 
 module.exports = {
   entry: "./src/index.ts",
@@ -28,17 +22,19 @@ module.exports = {
   },
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
+    fallback: {
+      url: require.resolve("./src/polyfill/url"),
+    },
   },
   optimization: {
     usedExports: true,
   },
   plugins: [
-    bundleAnalyzer,
-    // new webpack.ProvidePlugin({
-    //   // process: "process/browser",
-    // }),
     new webpack.DefinePlugin({
-      'process.env': JSON.stringify(process.env)
-    })
+      "process.env": JSON.stringify(process.env),
+    }),
+    new webpack.ProvidePlugin({
+      URL: ["url", "URL"],
+    }),
   ],
 };
