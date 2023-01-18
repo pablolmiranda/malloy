@@ -89,6 +89,14 @@ export class MalloyStateless {
     };
   }
 
+  static getSQL(document: string, schemas: string, query: string) {
+    const schemeObj = JSON.parse(schemas);
+    const response = MalloyStateless.generateMalloyModel(document, schemeObj);
+    // return JSON.stringify(response.model._modelDef);
+    const sql = MalloyStateless.generateSQLQuery(response.model, query);
+    return sql;
+  }
+
   /**
    * Use the Malloy model to generate the SQL for a malloy query
    */
@@ -119,7 +127,8 @@ export class MalloyStateless {
       const queryListItem = queryList[0];
 
       /**
-       * Build a new PreparedQuery to extract the SQL from it
+       * Build a new PreparedQuery to extract the
+       * SQL from it
        */
       const preparedQuery = new PreparedQuery(queryListItem, model._modelDef);
 
@@ -129,11 +138,28 @@ export class MalloyStateless {
       return preparedQuery.preparedResult.sql;
     }
 
+    const getCircularReplacer = () => {
+      const seen = new WeakSet();
+      return (key: string, value: any) => {
+        if (typeof value === 'object' && value !== null) {
+          if (seen.has(value)) {
+            return;
+          }
+          seen.add(value);
+        }
+        return value;
+      };
+    };
+
     /**
      * Throw an exception because we couldn't generate the SQL.
      * We need a better error information here, so the user can try to
      * recover. Maybe it is a query definition that need to change.
      */
-    throw new Error("It was not possible to generate the SQL query");
+    throw new Error(`It was not possible to generate the SQL query: \n
+      model: ${JSON.stringify(model, getCircularReplacer())} \n
+      result: ${JSON.stringify(result, getCircularReplacer())} \n
+      query list: ${JSON.stringify(queryList, getCircularReplacer())} \n
+    `);
   }
 }

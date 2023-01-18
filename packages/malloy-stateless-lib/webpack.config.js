@@ -26,15 +26,12 @@ module.exports = {
       url: require.resolve("./src/polyfill/url"),
     },
   },
-  optimization: {
-    usedExports: true,
-  },
   plugins: [
     new webpack.DefinePlugin({
       "process.env": JSON.stringify(process.env),
     }),
     new webpack.ProvidePlugin({
-      URL: ["url", "URL"],
+      URL: [path.resolve(path.join(__dirname, 'src/polyfill/url')), "URL"],
     }),
   ],
 };

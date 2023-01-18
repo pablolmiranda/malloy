@@ -7,3 +7,11 @@ FROM duckdb:flights as flights
 ORDER BY 1 desc NULLS LAST
 "
 `;
+
+exports[`Malloy Stateless library static getSQL returns sql when receive model, schema and query 1`] = `
+"SELECT 
+   COUNT( 1) as \\"flight_count\\"
+FROM duckdb:flights as flights
+ORDER BY 1 desc NULLS LAST
+"
+`;

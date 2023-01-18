@@ -106,4 +106,17 @@ describe("Malloy Stateless library", () => {
       expect(sql).toMatchSnapshot();
     });
   });
+
+  describe('static getSQL', () => {
+    it('returns sql when receive model, schema and query', () => {
+      const query = `
+        query: flights -> {
+          aggregate: flight_count
+        }
+      `;
+      const sql = MalloyStateless.getSQL(modelText, JSON.stringify(tableSchemas), query);
+
+      expect(sql).toMatchSnapshot();
+    })
+  })
 });
