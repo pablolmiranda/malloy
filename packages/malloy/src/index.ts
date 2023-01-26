@@ -75,6 +75,7 @@ export type { LogMessage, TranslateResponse } from "./lang";
 export {
   Malloy,
   Runtime,
+  Model as MalloyModel,
   AtomicFieldType,
   ConnectionRuntime,
   SingleConnectionRuntime,
@@ -82,6 +83,7 @@ export {
   InMemoryURLReader,
   FixedConnectionMap,
   MalloyError,
+  PreparedQuery,
   JoinRelationship,
   SourceRelationship,
   DateTimeframe,
@@ -95,8 +97,7 @@ export {
 } from "./malloy";
 export type {
   Explore,
-  Model,
-  PreparedQuery,
+  ModelMaterializer,
   PreparedResult,
   Field,
   AtomicField,
@@ -106,7 +107,6 @@ export type {
   DataRecord,
   DataColumn,
   DataArrayOrRecord,
-  ModelMaterializer,
   DocumentSymbol,
   DocumentHighlight,
   ResultJSON,

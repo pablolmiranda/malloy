@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Malloy Stateless library static generateSQLQuery returns a SQL statement from a malloy model and query 1`] = `
+"SELECT 
+   COUNT( 1) as \\"flight_count\\"
+FROM duckdb:flights as flights
+ORDER BY 1 desc NULLS LAST
+"
+`;
+
+exports[`Malloy Stateless library static getSQL returns sql when receive model, schema and query 1`] = `
+"SELECT 
+   COUNT( 1) as \\"flight_count\\"
+FROM duckdb:flights as flights
+ORDER BY 1 desc NULLS LAST
+"
+`;

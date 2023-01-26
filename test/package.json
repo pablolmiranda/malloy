@@ -1,6 +1,7 @@
 {
   "name": "test",
   "private": true,
+  "browser": "dist/index.js",
   "scripts": {
     "lint": "eslint '**/*.ts{,x}'",
     "lint-fix": "eslint '**/*.ts{,x}' --fix",
@@ -12,7 +13,8 @@
     "@malloydata/db-bigquery": "^0.0.22",
     "@malloydata/db-duckdb": "^0.0.22",
     "@malloydata/db-postgres": "^0.0.22",
-    "@malloydata/malloy": "^0.0.22"
+    "@malloydata/malloy": "^0.0.22",
+    "@malloydata/stateless-lib": "0.0.1"
   },
   "version": "0.0.22"
 }

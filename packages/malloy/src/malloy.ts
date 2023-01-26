@@ -184,13 +184,16 @@ export class Malloy {
       const result = translator.translate(model?._modelDef);
       if (result.final) {
         if (result.translated) {
-          return new Model(
+          const newModel = new Model(
             result.translated.modelDef,
             result.translated.queryList,
             result.translated.sqlBlocks,
             (position: ModelDocumentPosition) =>
               translator.referenceAt(position)
           );
+          // console.log("### MODEL ###");
+          // console.log(JSON.stringify(newModel, null, 2));
+          return newModel;
         } else {
           const errors = result.errors || [];
           const errText = translator.prettyErrors();
@@ -220,6 +223,7 @@ export class Malloy {
             }
           }
         }
+        // console.log(result.tables);
         if (result.tables) {
           // collect tables by connection name since there may be multiple connections
           const tablesByConnection: Map<
@@ -251,6 +255,7 @@ export class Malloy {
               //      the translator runs into an infinite loop fetching tables.
               const { schemas: tables, errors } =
                 await connection.fetchSchemaForTables(connectionTableString);
+              console.log(JSON.stringify(tables, null, 2));
               translator.update({ tables, errors: { tables: errors } });
             } catch (error) {
               // There was an exception getting the connection, associate that error
